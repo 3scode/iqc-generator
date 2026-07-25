@@ -1,0 +1,159 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link "IQC Generator" [ref=e6] [cursor=pointer]:
+          - /url: /
+        - navigation [ref=e11]:
+          - link "Creator" [ref=e12] [cursor=pointer]:
+            - /url: /
+          - link "Templates" [ref=e13] [cursor=pointer]:
+            - /url: /templates
+          - link "About" [ref=e14] [cursor=pointer]:
+            - /url: /about
+    - main [ref=e15]:
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - generic [ref=e18]:
+            - generic [ref=e19]:
+              - heading "Buat Quote" [level=1] [ref=e20]
+              - paragraph [ref=e21]: Isi chat, pilih quote, download.
+            - button "Reset" [ref=e22] [cursor=pointer]
+          - generic [ref=e23]:
+            - heading "Template" [level=3] [ref=e29]
+            - generic [ref=e30]:
+              - button "Classic Blue" [ref=e31] [cursor=pointer]
+              - button "Dark Elegant" [ref=e36] [cursor=pointer]
+              - button "Pink Aesthetic" [ref=e41] [cursor=pointer]
+              - button "Green Mint" [ref=e46] [cursor=pointer]
+              - button "Neon Vibes" [ref=e51] [cursor=pointer]
+              - button "Monochrome" [ref=e56] [cursor=pointer]
+          - generic [ref=e61]:
+            - heading "Pesan Chat" [level=3] [ref=e66]
+            - generic [ref=e68]:
+              - generic [ref=e69]:
+                - combobox [ref=e71] [cursor=pointer]:
+                  - option "Pesan Kanan" [selected]
+                  - option "Pesan Kiri"
+                - textbox "Ketik pesan..." [ref=e72]
+              - button "Jadikan Quote" [ref=e74] [cursor=pointer]
+            - button "Tambah Pesan" [ref=e79] [cursor=pointer]
+          - generic [ref=e82]:
+            - heading "Status Bar" [level=3] [ref=e86]
+            - generic [ref=e87]:
+              - generic [ref=e88]: Airplane Mode
+              - button [ref=e91]
+            - generic [ref=e93]:
+              - generic [ref=e94]: WiFi
+              - button [ref=e99]
+            - generic [ref=e101]:
+              - generic [ref=e102]:
+                - generic [ref=e103]: Waktu
+                - textbox "09:41" [ref=e107]
+              - generic [ref=e108]:
+                - generic [ref=e109]: Baterai
+                - generic [ref=e112]:
+                  - slider [ref=e113]: "80"
+                  - generic [ref=e114]: 80%
+              - generic [ref=e115]:
+                - generic [ref=e116]: Operator
+                - combobox [ref=e118] [cursor=pointer]:
+                  - option "Telkomsel"
+                  - option "Indosat"
+                  - option "XL"
+                  - option "Axis" [selected]
+                  - option "Tri"
+                  - option "Smartfren"
+                  - option "By.U"
+          - generic [ref=e119]:
+            - heading "Background" [level=3] [ref=e128]
+            - generic [ref=e129]:
+              - button "solid" [ref=e130] [cursor=pointer]
+              - button "gradient" [ref=e137] [cursor=pointer]
+              - button "image" [ref=e141] [cursor=pointer]
+            - generic [ref=e146]:
+              - textbox [ref=e147] [cursor=pointer]: "#1c1c1e"
+              - generic [ref=e148]: "#1C1C1E"
+          - button "Buat Quote" [ref=e150] [cursor=pointer]
+        - generic [ref=e153]:
+          - generic [ref=e154]:
+            - heading "Preview" [level=3] [ref=e155]
+            - generic [ref=e158]: Live
+          - generic [ref=e160]:
+            - paragraph [ref=e164]: Isi pesan di form samping
+            - paragraph [ref=e165]: Preview akan muncul otomatis
+  - button [ref=e167] [cursor=pointer]:
+    - generic:
+      - generic:
+        - button
+      - generic:
+        - button
+      - generic:
+        - button [disabled]
+      - generic:
+        - button [disabled]
+      - generic:
+        - button [disabled]
+      - generic:
+        - button [disabled]
+      - generic:
+        - button
+      - generic:
+        - button
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - link:
+              - /url: https://agentation.com
+            - paragraph: v3.0.2
+            - button "Switch to light mode"
+          - generic:
+            - generic:
+              - generic: Output Detail
+              - button "Standard"
+            - generic:
+              - generic: React Components
+              - generic:
+                - checkbox [checked]
+            - generic:
+              - generic: Hide Until Restart
+              - generic:
+                - checkbox
+          - generic:
+            - generic: Marker Color
+            - generic:
+              - button "Indigo"
+              - button "Blue"
+              - button "Cyan"
+              - button "Green"
+              - button "Yellow"
+              - button "Orange"
+              - button "Red"
+          - generic:
+            - generic:
+              - generic:
+                - checkbox "Clear on copy/send"
+              - generic: Clear on copy/send
+            - generic:
+              - generic:
+                - checkbox "Block page interactions" [checked]
+              - generic: Block page interactions
+          - button "Manage MCP & Webhooks"
+        - generic:
+          - button "Manage MCP & Webhooks"
+          - generic:
+            - generic: MCP Connection
+            - paragraph:
+              - text: MCP connection allows agents to receive and act on annotations.
+              - link "Learn more":
+                - /url: https://agentation.dev/mcp
+          - generic:
+            - generic:
+              - generic: Webhooks
+              - generic:
+                - generic: Auto-Send
+                - generic:
+                  - checkbox "Auto-Send" [checked] [disabled]
+            - paragraph: The webhook URL will receive live annotation changes and annotation data.
+            - textbox "Webhook URL"
