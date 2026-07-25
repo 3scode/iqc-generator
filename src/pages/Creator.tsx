@@ -95,12 +95,16 @@ export function Creator() {
         }),
       })
 
-      if (!res.ok) throw new Error('Export gagal')
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({ error: 'Gagal mengekspor gambar' }))
+        throw new Error(body.error || 'Gagal mengekspor gambar')
+      }
       const blob = await res.blob()
       downloadBlob(blob, 'iqc-quote.png')
       showToast('success', 'Quote tersimpan: IQC-Quote.png')
-    } catch {
-      showToast('error', 'Gagal mengekspor gambar')
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Gagal mengekspor gambar'
+      showToast('error', msg)
     } finally {
       setExporting(false)
     }
