@@ -3,9 +3,6 @@ function getErrorMessage(err: unknown): string {
   return String(err)
 }
 
-// Simple in‑memory cache: key → Buffer
-const exportCache = new Map<string, Buffer>()
-
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' })
@@ -16,20 +13,6 @@ export default async function handler(req: any, res: any) {
 
   if (!state || !origin) {
     res.status(400).json({ error: 'state and origin are required' })
-    return
-  }
-
-  // Compute a cache key based on all rendering inputs
-  const { createHash } = await import('crypto')
-  const cacheKey = createHash('sha256')
-    .update(JSON.stringify({ state, width, height, format, scale }))
-    .digest('hex')
-
-  if (exportCache.has(cacheKey)) {
-    const cached = exportCache.get(cacheKey)!
-    res.setHeader('Content-Type', `image/${format === 'jpeg' ? 'jpeg' : 'png'}`)
-    res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=3600')
-    res.status(200).send(cached)
     return
   }
 
@@ -63,7 +46,7 @@ export default async function handler(req: any, res: any) {
       const page = await context.newPage()
 
       await page.addInitScript((s: any) => {
-        ;(window as any).__EXPORT_STATE__ = s
+        window.__EXPORT_STATE__ = s
       }, state)
 
       await page.goto(`${origin}/export`, {
@@ -78,9 +61,7 @@ export default async function handler(req: any, res: any) {
       })
 
       await page.evaluate(() => {
-        const appleEmoji = (e: string) =>
-          'https://cdn.jsdelivr.net/gh/iamcal/emoji-data@master/img-apple-64/' +
-          [...e].map(c => c.codePointAt(0)!.toString(16)).join('-') + '.png'
+        const appleEmoji = (e: string) => 'https://cdn.jsdelivr.net/gh/iamcal/emoji-data@master/img-apple-64/' + [...e].map(c => c.codePointAt(0)!.toString(16)).join('-') + '.png'
         const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT)
         const replace: [Text, string, string][] = []
         while (walker.nextNode()) {
@@ -91,7 +72,7 @@ export default async function handler(req: any, res: any) {
           while ((m = re.exec(text)) !== null) replace.push([node, m[0], appleEmoji(m[0])])
         }
         const done = new Set<Node>()
-        for (const [node] of replace) {
+        for (const [node, emoji, url] of replace) {
           if (done.has(node)) continue
           done.add(node)
           const text = node.textContent || ''
@@ -119,17 +100,13 @@ export default async function handler(req: any, res: any) {
 
       const buffer = await page.screenshot({
         type: format === 'jpeg' ? 'jpeg' : 'png',
-        ...(format === 'jpeg' ? { quality: 95 } : {}),
+        ...(format === 'jpeg' ? { quality: 0.95 } : {}),
         clip: { x: 0, y: 0, width: Number(width), height: Number(height) },
       })
-
-      // Store in cache for identical future requests
-      exportCache.set(cacheKey, buffer)
 
       res.setHeader('Content-Type', `image/${format === 'jpeg' ? 'jpeg' : 'png'}`)
       res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=3600')
       res.status(200).send(buffer)
-      await context.close().catch(() => {})
     } finally {
       await browser.close().catch(() => {})
     }

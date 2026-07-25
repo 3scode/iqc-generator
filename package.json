@@ -10,7 +10,8 @@
     "lint": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "serve": "bun run build && bun run server.ts"
   },
   "dependencies": {
     "@sparticuz/chromium": "^132.0.0",
