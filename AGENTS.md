@@ -1,71 +1,74 @@
-# IQC Generator — Project Context
+# IQC Generator — Konteks Proyek
 
-## Project
-**IQC (iPhone Quote Chat) Generator** — Web tool to create aesthetic iPhone-style quote chat images ready for social media posts.
+## Proyek
+**IQC (iPhone Quote Chat) Generator** — Alat web untuk membuat gambar quote chat iPhone-style yang estetis, siap untuk diunggah ke media sosial.
 
-## Current State
-**All tasks complete.** Build passes, 29 tests pass, type-check clean.
+## Kondisi Saat Ini
+**Semua tugas selesai.** Build berhasil, 29 tes lolos, type-check bersih.
 
-## Tech Stack
+## Tumpukan Teknologi
 - **Runtime:** Bun | **Frontend:** React 19 + TypeScript | **Bundler:** Vite 8
-- **Styling:** Tailwind CSS 4 + neumorphic design system
-- **State:** Zustand 5 | **Server-side render:** Playwright + @sparticuz/chromium
+- **Styling:** Tailwind CSS 4 + sistem desain neumorphic
+- **State:** Zustand 5 | **Server-side render:** ScreenshotOne API
 - **Icons:** Lucide
 - **Routing:** React Router 7 | **Hosting:** Vercel
-- **Testing:** Vitest + React Testing Library + Playwright (e2e dir empty)
+- **Testing:** Vitest + React Testing Library
 
-## Architecture
-- SPA with server-side image export via Playwright
-- 4 routes: `/` Creator, `/templates`, `/about`, `/export` (headless render target)
-- 2 Zustand stores: `formStore` (messages, quote, bg, layout) + `uiStore` (dark, modal, toast)
-- 4 main components: QuoteCard (canvas), PhoneFrame → ChatBubble + StatusBar, FullPreviewModal
+## Arsitektur
+- SPA dengan ekspor gambar server-side via ScreenshotOne API
+- 4 rute: `/` Creator, `/templates`, `/about`, `/export` (target render headless)
+- 2 Zustand store: `formStore` (messages, quote, bg, layout) + `uiStore` (dark, modal, toast)
+- 4 komponen utama: QuoteCard (canvas), PhoneFrame → ChatBubble + StatusBar, FullPreviewModal
 
-## Export Pipeline
-- Frontend POSTs form state + origin to `/api/export`
-- Server launches headless Chromium, navigates to `<origin>/export` with state injected via `page.addInitScript`
-- React renders the real QuoteCard with all CSS (Tailwind v4, custom properties, fonts)
-- Steps before screenshot: `document.fonts.ready` → Twemoji DOM replacement → 300ms settle
-- Uses full mobile browser context (`isMobile`, `hasTouch`, `colorScheme: dark`, `deviceScaleFactor: 3`)
-- Output: PNG or JPEG at 3x retina (1290×2796 for 440×956 logical)
-- Dev: Vite plugin middleware; Production: Vercel serverless function (`api/export.ts`)
+## Pipeline Ekspor
+- Frontend POST state form + origin ke `/api/export`
+- Server menggunakan ScreenshotOne API SDK dengan URL export + state terenkripsi base64 di URL hash fragment
+- React merender QuoteCard dengan semua CSS (Tailwind v4, custom properties, fonts)
+- State di-encode ke base64 lalu disisipkan sebagai hash fragment di URL export
+- Output: PNG atau JPEG dengan cache per-request (in-memory, key = sha256 dari state + dimensi)
+- Dev: Vite dev server; Production: Vercel serverless function (`api/export.ts`)
 
-## Key Conventions
+## Konvensi Utama
 - `@/` path alias → `./src/*`
-- CSS: Tailwind utility classes + neumorph shadow utilities in `index.css`
-- Components under `src/components/{chat,quote,ui,layout}/`
-- All UI uses CSS custom properties (`--color-*`)
+- CSS: Tailwind utility classes + neumorph shadow utilities di `index.css`
+- Komponen di bawah `src/components/{chat,quote,ui,layout}/`
+- Semua UI menggunakan CSS custom properties (`--color-*`)
 
-## Design
-- iOS 18 WhatsApp screenshot style (ultra-realistic)
-- Dark background with blurred backdrop, WhatsApp green bubbles (#005C4B)
-- Status bar shows carrier, signal bars (SVG), WiFi icon, battery, center time
-- Background messages + ContextMenu + EmojiReactions for realism
-- QuoteCard renders the full exportable image (phone frame on background)
-- Background: solid/gradient/image, layout: 9:16 only (others mapped to same)
+## Desain
+- iOS 18 WhatsApp screenshot style (ultra-realistis)
+- Background gelap dengan backdrop blur, bubble hijau WhatsApp (#005C4B)
+- Status bar menampilkan carrier, signal bars (SVG), WiFi icon, battery, waktu di tengah
+- Background messages + ContextMenu + EmojiReactions untuk realisme
+- QuoteCard merender gambar ekspor lengkap (frame phone di background)
+- Background: solid/gradient/image, layout: 9:16 (others mapped to same)
 
 ## Data
-- Templates in `src/data/templates.ts` — static JSON with presets
-- `formStore.applyTemplate()` populates all fields
-- No backend, no localStorage (except dark mode pref - not yet wired)
-- All state is in-memory, gone on page reload
+- Templates di `src/data/templates.ts` — JSON statis dengan preset
+- `formStore.applyTemplate()` mengisi semua field
+- Tidak ada backend, tidak ada localStorage (kecuali pref dark mode)
+- Semua state in-memory, hilang saat halaman di-reload
 
-## Testing (29 tests pass)
-- `src/stores/__tests__/formStore.test.ts` — store actions
-- `src/stores/__tests__/uiStore.test.ts` — UI state
-- `src/utils/__tests__/validation.test.ts` — form validation
-- `src/components/ui/__tests__/Button.test.tsx` — component
-- e2e/ directory exists but is empty (no Playwright tests yet)
+## Testing (29 tes lolos)
+- `src/stores/__tests__/formStore.test.ts` — aksi store
+- `src/stores/__tests__/uiStore.test.ts` — state UI
+- `src/utils/__tests__/validation.test.ts` — validasi form
+- `src/components/ui/__tests__/Button.test.tsx` — komponen
+- Direktori e2e/ ada tapi kosong (belum ada tes Playwright)
 
 ## CI/CD
-- `.github/workflows/ci.yml` — lint → typecheck → test → build on push/PR
-- Vercel auto-deploy from main, SPA rewrites configured in `vercel.json`
+- `.github/workflows/ci.yml` — lint → typecheck → test → build di push/PR
+- Vercel auto-deploy dari main, SPA rewrites dikonfigurasi di `vercel.json`
+- Environment variables: `SCREENSHOTONE_ACCESS_KEY`, `SCREENSHOTONE_SECRET_KEY` di Vercel dashboard
 
-## Commands
+## Perintah
 - `bun run dev` — Vite dev server
 - `bun run build` — tsc + vite build
-- `bun run lint` — `tsc --noEmit` (needs `bunx tsc --noEmit` or `npx tsc --noEmit` since `tsc` isn't in PATH)
+- `bun run lint` — `tsc --noEmit`
 - `bun run test` — Vitest
-- `bun run test:e2e` — Playwright (no tests yet)
+- `bun run serve` — Build + server lokal (bun run server.ts)
 
-## Branches
-- `main` — primary dev + deploy branch
+## Catatan Penting
+- **Tidak pakai Playwright** untuk ekspor gambar — kini menggunakan ScreenshotOne API
+- ScreenshotOne butuh API key (akses + secret) dari https://screenshotone.com
+- State diekspor sebagai base64 di URL hash fragment agar ScreenshotOne bisa render halaman export secara eksternal
+- Caching in-memory di `api/export.ts` untuk repeated request yang sama (key = sha256 dari state + dimensi)
