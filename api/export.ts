@@ -17,15 +17,15 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
+    const path = await import('path')
     const { chromium } = await import('playwright-core')
     const { default: sparticuz } = await import('@sparticuz/chromium')
 
-    let executablePath: string
-    try {
-      executablePath = await sparticuz.executablePath()
-    } catch (e) {
-      res.status(500).json({ error: `Gagal dapatkan Chromium: ${await getErrorMessage(e)}` })
-      return
+    const executablePath = await sparticuz.executablePath()
+    process.env.LD_LIBRARY_PATH = path.dirname(executablePath)
+
+    if (typeof sparticuz.setGraphicsMode === 'function') {
+      sparticuz.setGraphicsMode(false)
     }
 
     const browser = await chromium.launch({
@@ -116,6 +116,6 @@ export default async function handler(req: any, res: any) {
 }
 
 export const config = {
-  maxDuration: 30,
+  maxDuration: 120,
   memory: 1024,
 }
