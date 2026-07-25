@@ -38,7 +38,15 @@ export function ExportPage() {
   const store = useFormStore()
 
   useEffect(() => {
-    const state = window.__EXPORT_STATE__
+    let state = window.__EXPORT_STATE__
+    if (!state) {
+      try {
+        const hash = window.location.hash.slice(1)
+        if (hash) state = JSON.parse(atob(hash.replace(/-/g, '+').replace(/_/g, '/')))
+      } catch {
+        // ignore invalid hash state
+      }
+    }
     if (!state) return
     useFormStore.setState({
       messages: state.messages,

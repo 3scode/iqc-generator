@@ -1,6 +1,10 @@
 {
   "buildCommand": "bun run build",
   "outputDirectory": "dist",
+  "env": {
+    "SCREENSHOTONE_ACCESS_KEY": "@screenshotone_access_key",
+    "SCREENSHOTONE_SECRET_KEY": "@screenshotone_secret_key"
+  },
   "rewrites": [
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]

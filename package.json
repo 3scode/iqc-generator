@@ -14,13 +14,12 @@
     "serve": "bun run build && bun run server.ts"
   },
   "dependencies": {
-    "@sparticuz/chromium": "^132.0.0",
     "agentation": "^3.0.2",
     "lucide-react": "^1.26.0",
-    "playwright-core": "^1.52.0",
     "react": "19",
     "react-dom": "19",
     "react-router-dom": "^7.18.1",
+    "screenshotone-api-sdk": "^1.1.21",
     "zustand": "^5.0.14"
   },
   "devDependencies": {
