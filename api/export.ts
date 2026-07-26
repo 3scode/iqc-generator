@@ -38,12 +38,14 @@ export default async function handler(req: any, res: any) {
       .viewportHeight(height)
       .deviceScaleFactor(scale)
       .fullPage(false)
+      .headers('ngrok-skip-browser-warning: true')
 
-    const buffer = await client.take(options)
+    const imageBlob = await client.take(options)
+    const buffer = Buffer.from(await imageBlob.arrayBuffer())
 
     res.setHeader('Content-Type', `image/${format === 'jpeg' ? 'jpeg' : 'png'}`)
     res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=3600')
-    res.status(200).send(Buffer.from(buffer))
+    res.status(200).send(buffer)
   } catch (err: unknown) {
     res.status(500).json({ error: getErrorMessage(err) })
   }

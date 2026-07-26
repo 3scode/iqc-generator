@@ -86,10 +86,12 @@ async function handleExport(req: Request): Promise<Response> {
       .viewportHeight(height)
       .deviceScaleFactor(scale)
       .fullPage(false)
+      .headers('ngrok-skip-browser-warning: true')
 
-    const buffer = await client.take(options)
+            const imageBlob = await client.take(options)
+            const buffer = Buffer.from(await imageBlob.arrayBuffer())
 
-    return new Response(Buffer.from(buffer), {
+            return new Response(buffer, {
       headers: {
         'Content-Type': `image/${format === 'jpeg' ? 'jpeg' : 'png'}`,
         'Cache-Control': 'public, max-age=0, s-maxage=3600',

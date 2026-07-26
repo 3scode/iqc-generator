@@ -72,3 +72,7 @@
 - ScreenshotOne butuh API key (akses + secret) dari https://screenshotone.com
 - State diekspor sebagai base64 di URL hash fragment agar ScreenshotOne bisa render halaman export secara eksternal
 - Caching in-memory di `api/export.ts` untuk repeated request yang sama (key = sha256 dari state + dimensi)
+
+## Aturan Penting
+- **Jangan commit dan push tanpa persetujuan pengguna.** Selalu minta konfirmasi terlebih dahulu sebelum menjalankan `git commit` dan `git push`.
+- **Saat pengguna memerintahkan commit dan push, gunakan bahasa Indonesia** untuk pesan commit dan komunikasi.

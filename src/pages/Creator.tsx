@@ -46,6 +46,7 @@ export function Creator() {
   }
 
   const [exporting, setExporting] = useState(false)
+  const [format, setFormat] = useState<'png' | 'jpeg'>('png')
 
   const handleDownload = async () => {
     if (!validate()) return
@@ -90,7 +91,7 @@ export function Creator() {
           origin: window.location.origin,
           width: size.width,
           height: size.height,
-          format: 'png',
+          format,
           scale: 3,
         }),
       })
@@ -100,7 +101,7 @@ export function Creator() {
         throw new Error(body.error || 'Gagal mengekspor gambar')
       }
       const blob = await res.blob()
-      downloadBlob(blob, 'iqc-quote.png')
+      downloadBlob(blob, `iqc-quote.${format === 'jpeg' ? 'jpg' : 'png'}`)
       showToast('success', 'Quote tersimpan: IQC-Quote.png')
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Gagal mengekspor gambar'
@@ -438,7 +439,22 @@ export function Creator() {
           )}
         </Section>
 
-        <div className="neumorph-card p-5">
+        <div className="neumorph-card p-5 space-y-3">
+          <div className="flex gap-2">
+            {(['png', 'jpeg'] as const).map((f) => (
+              <button
+                key={f}
+                onClick={() => setFormat(f)}
+                className={`flex-1 py-2 text-sm font-medium rounded-[var(--radius-base)] transition-all duration-300 cursor-pointer ${
+                  f === format
+                    ? 'text-[--color-accent] neumorph-inset-sm bg-[--color-surface]'
+                    : 'text-[--color-muted] bg-[--color-surface] neumorph-sm hover:neumorph'
+                }`}
+              >
+                {f.toUpperCase()}
+              </button>
+            ))}
+          </div>
           <Button variant="secondary" fullWidth size="lg" onClick={handleDownload} loading={exporting}>
             <Smartphone className="size-5" /> Download Gambar
           </Button>

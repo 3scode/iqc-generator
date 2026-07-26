@@ -6,7 +6,7 @@ interface Item {
 
 function IconBase({ d, stroke }: { d: string; stroke?: string }) {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
       <path d={d} {...(stroke ? { stroke, strokeWidth: '1.5', strokeLinecap: 'round', fill: 'none' } : {})} />
     </svg>
   )
@@ -63,7 +63,7 @@ interface MenuProps {
 export function ContextMenu({ align = 'left' }: MenuProps) {
   return (
     <div className={`flex ${align === 'right' ? 'justify-end pr-[8px]' : 'justify-start pl-[8px]'}`}>
-      <div className="relative" style={{ width: '350px' }}>
+      <div className="relative" style={{ width: '300px' }}>
         <div
           className="absolute inset-0 rounded-[22px]"
           style={{
@@ -91,10 +91,10 @@ export function ContextMenu({ align = 'left' }: MenuProps) {
           {items.map((item, i) => (
             <div
               key={i}
-              className="flex items-center justify-between h-[40px] cursor-pointer"
+              className="flex items-center justify-between h-[48px] cursor-pointer"
               style={{
                 paddingLeft: '14px',
-                paddingRight: '14px',
+                paddingRight: '12px',
                 borderBottom: i < items.length - 1 ? '0.5px solid rgba(255,255,255,0.05)' : 'none',
               }}
             >

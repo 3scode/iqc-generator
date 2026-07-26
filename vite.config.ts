@@ -4,8 +4,6 @@ import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 
 function apiExportPlugin() {
-  let browser: Awaited<ReturnType<typeof import('playwright-core')['chromium']['launch']>> | null = null
-
   return {
     name: 'api-export',
     apply: 'serve' as const,
@@ -19,7 +17,7 @@ function apiExportPlugin() {
         }
 
         let body = ''
-        req.on('data', (chunk: string) => body += chunk)
+        req.on('data', (chunk: string) => (body += chunk))
         req.on('end', async () => {
           try {
             const { state, origin, width = 440, height = 956, format = 'png', scale = 3 } = JSON.parse(body)
@@ -31,88 +29,33 @@ function apiExportPlugin() {
               return
             }
 
-            if (!browser) {
-              const { default: sparticuz } = await import('@sparticuz/chromium')
-              const { chromium } = await import('playwright-core')
-              browser = await chromium.launch({
-                args: sparticuz.args,
-                executablePath: await sparticuz.executablePath(),
-                headless: sparticuz.headless === true || sparticuz.headless === 'shell' || sparticuz.headless === 'new',
-              })
+            const accessKey = process.env.SCREENSHOTONE_ACCESS_KEY
+            const secretKey = process.env.SCREENSHOTONE_SECRET_KEY
+            if (!accessKey || !secretKey) {
+              res.statusCode = 500
+              res.setHeader('Content-Type', 'application/json')
+              res.end(JSON.stringify({ error: 'ScreenshotOne API keys not configured' }))
+              return
             }
 
-            const context = await browser.newContext({
-              viewport: { width: Number(width), height: Number(height) },
-              deviceScaleFactor: Number(scale),
-              colorScheme: 'dark',
-              locale: 'id-ID',
-              hasTouch: true,
-              isMobile: true,
-            })
-            const page = await context.newPage()
+            const encoded = Buffer.from(JSON.stringify(state)).toString('base64')
+            const exportUrl = `${origin}/export#${encoded}`
 
-            await page.addInitScript((s: any) => {
-              window.__EXPORT_STATE__ = s
-            }, state)
+            const { Client, TakeOptions } = await import('screenshotone-api-sdk')
+            const client = new Client(accessKey, secretKey)
+            const options = TakeOptions.url(exportUrl)
+              .delay(2)
+              .viewportWidth(width)
+              .viewportHeight(height)
+              .deviceScaleFactor(scale)
+              .fullPage(false)
+              .headers('ngrok-skip-browser-warning: true')
 
-            await page.goto(`${origin}/export`, {
-              waitUntil: 'networkidle',
-              timeout: 20000,
-            })
-
-            await page.waitForSelector('[data-export-root]', { timeout: 10000 })
-
-            await page.evaluate(async () => {
-              await document.fonts.ready
-            })
-
-            await page.evaluate(() => {
-              const appleEmoji = (e: string) => 'https://cdn.jsdelivr.net/gh/iamcal/emoji-data@master/img-apple-64/' + [...e].map(c => c.codePointAt(0)!.toString(16)).join('-') + '.png'
-              const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT)
-              const replace: [Text, string, string][] = []
-              while (walker.nextNode()) {
-                const node = walker.currentNode as Text
-                const text = node.textContent || ''
-                const re = /((?:[\u{1F000}-\u{1FFFF}]|[\u{2600}-\u{27BF}])(?:[\u{FE00}-\u{FE0F}]|[\u{200D}](?:[\u{1F000}-\u{1FFFF}]|[\u{2600}-\u{27BF}]))*)/gu
-                let m
-                while ((m = re.exec(text)) !== null) replace.push([node, m[0], appleEmoji(m[0])])
-              }
-              const done = new Set<Node>()
-              for (const [node, emoji, url] of replace) {
-                if (done.has(node)) continue
-                done.add(node)
-                const text = node.textContent || ''
-                const parts: (Text | HTMLImageElement)[] = []
-                let last = 0
-                const re2 = /((?:[\u{1F000}-\u{1FFFF}]|[\u{2600}-\u{27BF}])(?:[\u{FE00}-\u{FE0F}]|[\u{200D}](?:[\u{1F000}-\u{1FFFF}]|[\u{2600}-\u{27BF}]))*)/gu
-                let m2
-                while ((m2 = re2.exec(text)) !== null) {
-                  if (m2.index > last) parts.push(document.createTextNode(text.slice(last, m2.index)))
-                  const img = document.createElement('img')
-                  img.src = appleEmoji(m2[0])
-                  img.alt = m2[0]
-                  img.style.cssText = 'width:1.2em;height:1.2em;vertical-align:middle;display:inline'
-                  parts.push(img)
-                  last = m2.index + m2[0].length
-                }
-                if (last < text.length) parts.push(document.createTextNode(text.slice(last)))
-                const frag = document.createDocumentFragment()
-                parts.forEach(p => frag.appendChild(p))
-                node.parentNode!.replaceChild(frag, node)
-              }
-            })
-
-            await page.waitForTimeout(300)
-
-            const buffer = await page.screenshot({
-              type: format === 'jpeg' ? 'jpeg' : 'png',
-              ...(format === 'jpeg' ? { quality: 0.95 } : {}),
-              clip: { x: 0, y: 0, width: Number(width), height: Number(height) },
-            })
-
-            await page.close()
+            const imageBlob = await client.take(options)
+            const buffer = Buffer.from(await imageBlob.arrayBuffer())
 
             res.setHeader('Content-Type', `image/${format === 'jpeg' ? 'jpeg' : 'png'}`)
+            res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=3600')
             res.statusCode = 200
             res.end(buffer)
           } catch (err: any) {
@@ -121,10 +64,6 @@ function apiExportPlugin() {
             res.end(JSON.stringify({ error: err.message }))
           }
         })
-      })
-
-      server.httpServer?.on('close', async () => {
-        if (browser) await browser.close()
       })
     },
   }
@@ -135,5 +74,6 @@ export default defineConfig({
   resolve: {
     alias: { '@': path.resolve(__dirname, 'src') },
   },
+  server: { allowedHosts: true },
   build: { target: 'es2020' },
 })
