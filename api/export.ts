@@ -28,8 +28,8 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    const encoded = Buffer.from(JSON.stringify(state)).toString('base64')
-    const exportUrl = `${origin}/export#${encoded}`
+    const encoded = Buffer.from(JSON.stringify(state)).toString('base64url')
+    const exportUrl = `${origin}/export?state=${encoded}`
 
     const viewportWidth = width + 40
     const viewportHeight = height + 40

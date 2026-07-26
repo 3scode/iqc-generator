@@ -41,10 +41,11 @@ export function ExportPage() {
     let state = window.__EXPORT_STATE__
     if (!state) {
       try {
-        const hash = window.location.hash.slice(1)
-        if (hash) state = JSON.parse(atob(hash.replace(/-/g, '+').replace(/_/g, '/')))
+        const params = new URLSearchParams(window.location.search)
+        const encoded = params.get('state')
+        if (encoded) state = JSON.parse(atob(encoded))
       } catch {
-        // ignore invalid hash state
+        // ignore invalid state
       }
     }
     if (!state) return
