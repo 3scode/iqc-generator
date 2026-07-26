@@ -1,5 +1,3 @@
-import * as screenshotone from 'screenshotone-api-sdk'
-
 function getErrorMessage(err: unknown): string {
   if (err instanceof Error) return err.message
   return String(err)
@@ -30,9 +28,10 @@ export default async function handler(req: any, res: any) {
     const encoded = Buffer.from(JSON.stringify(state)).toString('base64')
     const exportUrl = `${origin}/export#${encoded}`
 
-    const client = new screenshotone.Client(accessKey, secretKey)
+    const { Client, TakeOptions } = await import('screenshotone-api-sdk')
+    const client = new Client(accessKey, secretKey)
 
-    const options = screenshotone.TakeOptions.url(exportUrl)
+    const options = TakeOptions.url(exportUrl)
       .delay(2)
       .viewportWidth(width)
       .viewportHeight(height)
