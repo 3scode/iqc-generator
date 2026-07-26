@@ -1,9 +1,9 @@
-import { createHash } from 'crypto'
+import { createHmac } from 'crypto'
 
 const API_BASE = 'https://api.screenshotone.com/take'
 
 function sign(query: string, secret: string): string {
-  return createHash('sha256').update(query + secret).digest('hex')
+  return createHmac('sha256', secret).update(query).digest('hex')
 }
 
 export default async function handler(req: any, res: any) {
