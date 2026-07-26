@@ -7,7 +7,7 @@ import { Button } from '../ui/Button'
 import { downloadBlob } from '../../utils/download'
 import { getLayoutSize } from '../../utils/canvas'
 
-const BASE_URL = '/iqc'
+const BASE_URL = ''
 
 export function FullPreviewModal() {
   const { modalOpen: isOpen, closeModal, showToast } = useUiStore()

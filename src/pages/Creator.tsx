@@ -88,7 +88,7 @@ export function Creator() {
             isMuted: store.isMuted,
             isVerified: store.isVerified,
           },
-          origin: `${window.location.origin}/iqc`,
+          origin: window.location.origin,
           width: size.width,
           height: size.height,
           format,
