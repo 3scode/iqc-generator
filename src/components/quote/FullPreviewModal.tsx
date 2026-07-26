@@ -43,7 +43,7 @@ export function FullPreviewModal() {
           isMuted: store.isMuted,
           isVerified: store.isVerified,
         },
-        origin: window.location.origin,
+        origin: window.location.origin + import.meta.env.BASE_URL.replace(/\/$/, ''),
         width: size.width,
         height: size.height,
         format,
