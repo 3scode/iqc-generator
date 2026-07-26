@@ -7,6 +7,8 @@ import { Button } from '../ui/Button'
 import { downloadBlob } from '../../utils/download'
 import { getLayoutSize } from '../../utils/canvas'
 
+const BASE_URL = '/iqc'
+
 export function FullPreviewModal() {
   const { modalOpen: isOpen, closeModal, showToast } = useUiStore()
   const store = useFormStore()
@@ -43,7 +45,7 @@ export function FullPreviewModal() {
           isMuted: store.isMuted,
           isVerified: store.isVerified,
         },
-        origin: window.location.origin + import.meta.env.BASE_URL.replace(/\/$/, ''),
+        /*DEBUG*/origin: window.location.origin + BASE_URL,
         width: size.width,
         height: size.height,
         format,
