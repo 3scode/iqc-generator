@@ -1,6 +1,9 @@
-function getErrorMessage(err: unknown): string {
-  if (err instanceof Error) return err.message
-  return String(err)
+import { createHash } from 'crypto'
+
+const API_BASE = 'https://api.screenshotone.com/take'
+
+function sign(query: string, secret: string): string {
+  return createHash('sha256').update(query + secret).digest('hex')
 }
 
 export default async function handler(req: any, res: any) {
@@ -28,25 +31,35 @@ export default async function handler(req: any, res: any) {
     const encoded = Buffer.from(JSON.stringify(state)).toString('base64')
     const exportUrl = `${origin}/export#${encoded}`
 
-    const { Client, TakeOptions } = await import('screenshotone-api-sdk')
-    const client = new Client(accessKey, secretKey)
+    const params = new URLSearchParams({
+      access_key: accessKey,
+      url: exportUrl,
+      delay: '2',
+      viewport_width: String(width),
+      viewport_height: String(height),
+      device_scale_factor: String(scale),
+      full_page: 'false',
+      headers: 'ngrok-skip-browser-warning: true',
+    })
 
-    const options = TakeOptions.url(exportUrl)
-      .delay(2)
-      .viewportWidth(width)
-      .viewportHeight(height)
-      .deviceScaleFactor(scale)
-      .fullPage(false)
-      .headers('ngrok-skip-browser-warning: true')
+    const queryString = params.toString()
+    const signature = sign(queryString, secretKey)
 
-    const imageBlob = await client.take(options)
-    const buffer = Buffer.from(await imageBlob.arrayBuffer())
+    const response = await fetch(`${API_BASE}?${queryString}&signature=${signature}`)
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}))
+      throw new Error(data?.error_message || `ScreenshotOne returned ${response.status}`)
+    }
+
+    const buffer = Buffer.from(await response.arrayBuffer())
 
     res.setHeader('Content-Type', `image/${format === 'jpeg' ? 'jpeg' : 'png'}`)
     res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=3600')
     res.status(200).send(buffer)
   } catch (err: unknown) {
-    res.status(500).json({ error: getErrorMessage(err) })
+    const message = err instanceof Error ? err.message : String(err)
+    res.status(500).json({ error: message })
   }
 }
 
