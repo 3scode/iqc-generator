@@ -70,10 +70,11 @@ function apiExportPlugin() {
 }
 
 export default defineConfig({
+  base: '/iqc/',
   plugins: [react(), tailwindcss(), apiExportPlugin()],
   resolve: {
     alias: { '@': path.resolve(__dirname, 'src') },
   },
   server: { allowedHosts: true },
-  build: { target: 'es2020' },
+  build: { target: 'es2020', outDir: 'dist/iqc' },
 })
