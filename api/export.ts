@@ -31,15 +31,21 @@ export default async function handler(req: any, res: any) {
     const encoded = Buffer.from(JSON.stringify(state)).toString('base64')
     const exportUrl = `${origin}/export#${encoded}`
 
+    const viewportWidth = width + 40
+    const viewportHeight = height + 40
+
     const params = new URLSearchParams({
       access_key: accessKey,
       url: exportUrl,
-      delay: '2',
-      viewport_width: String(width),
-      viewport_height: String(height),
+      delay: '1',
+      viewport_width: String(viewportWidth),
+      viewport_height: String(viewportHeight),
       device_scale_factor: String(scale),
       full_page: 'false',
-      headers: 'ngrok-skip-browser-warning: any',
+      wait_until: 'network_idle_0',
+      block_cookie_banners: 'true',
+      block_chats: 'true',
+      block_ads: 'true',
     })
 
     const qs = params.toString()
